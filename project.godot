@@ -1,0 +1,31 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="Faydark2"
+run/main_scene="uid://cgaym3y5kbj4l"
+config/features=PackedStringArray("4.4", "Mobile")
+config/icon="res://icon.svg"
+
+[autoload]
+
+class_library="*res://Scripts/ClassLibrary.gd"
+personality_library="*res://Scripts/PersonalityLibrary.gd"
+PersonalityManager="*res://Scripts/PersonalityManager.gd"
+Character="*res://Scripts/character.gd"
+
+[dotnet]
+
+project/assembly_name="Faydark2"
+
+[rendering]
+
+renderer/rendering_method="mobile"
