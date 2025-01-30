@@ -1,0 +1,80 @@
+[gd_scene load_steps=11 format=3 uid="uid://fvrvb4csmji6"]
+
+[ext_resource type="Texture2D" uid="uid://07mjrfkprhh4" path="res://Assets/Tiny Swords/Tiny Swords (Update 010)/Resources/Trees/Tree.png" id="1_g0dss"]
+[ext_resource type="Script" uid="uid://cosk81tv23n6g" path="res://Scripts/CharacterScripts/tree.gd" id="2_4k5gn"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_4k5gn"]
+atlas = ExtResource("1_g0dss")
+region = Rect2(0, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_rlsfx"]
+atlas = ExtResource("1_g0dss")
+region = Rect2(192, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_vpmp4"]
+atlas = ExtResource("1_g0dss")
+region = Rect2(384, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_1dwjy"]
+atlas = ExtResource("1_g0dss")
+region = Rect2(576, 0, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_v7akf"]
+atlas = ExtResource("1_g0dss")
+region = Rect2(0, 192, 192, 192)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w8vjy"]
+atlas = ExtResource("1_g0dss")
+region = Rect2(192, 192, 192, 192)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_sy8ab"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_4k5gn")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_rlsfx")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_vpmp4")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_1dwjy")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_v7akf")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w8vjy")
+}],
+"loop": false,
+"name": &"shake",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_g0dss"]
+radius = 17.0
+height = 44.0
+
+[node name="Tree" type="Node2D"]
+script = ExtResource("2_4k5gn")
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_sy8ab")
+animation = &"shake"
+frame = 4
+frame_progress = 0.354645
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(-1, 57)
+shape = SubResource("CapsuleShape2D_g0dss")
+
+[node name="Area2D" type="Area2D" parent="."]
+collision_layer = 2
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-1, 55)
+shape = SubResource("CapsuleShape2D_g0dss")

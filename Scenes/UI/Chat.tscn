@@ -1,0 +1,29 @@
+[gd_scene load_steps=3 format=3 uid="uid://dhre8einpxosn"]
+
+[ext_resource type="Texture2D" uid="uid://c4p546m7m1fmg" path="res://Assets/Tiny Swords/Tiny Swords (Update 010)/UI/Buttons/Button_Blue_9Slides_Pressed.png" id="1_xf8jv"]
+[ext_resource type="Texture2D" uid="uid://biawb6drmg7u0" path="res://Assets/Tiny Swords/Tiny Swords (Update 010)/UI/Icons/Disable_01.png" id="2_2wf6d"]
+
+[node name="Chat" type="Node2D"]
+
+[node name="ButtonBlue9SlidesPressed" type="Sprite2D" parent="."]
+position = Vector2(560, 402)
+scale = Vector2(2.10417, 1.89583)
+texture = ExtResource("1_xf8jv")
+
+[node name="Label" type="Label" parent="."]
+offset_left = 401.0
+offset_top = 254.0
+offset_right = 533.0
+offset_bottom = 302.0
+theme_override_font_sizes/font_size = 24
+text = "Player Initialized! 
+Map Loaded!
+
+Day 1, 03:00
+Glade
+
+"
+
+[node name="Disable01" type="Sprite2D" parent="."]
+position = Vector2(709, 269)
+texture = ExtResource("2_2wf6d")

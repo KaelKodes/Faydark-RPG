@@ -12,15 +12,12 @@ config_version=5
 
 config/name="Faydark2"
 run/main_scene="uid://cgaym3y5kbj4l"
-config/features=PackedStringArray("4.4", "Mobile")
+config/features=PackedStringArray("4.4", "C#", "Mobile")
 config/icon="res://icon.svg"
 
 [autoload]
 
-class_library="*res://Scripts/ClassLibrary.gd"
-personality_library="*res://Scripts/PersonalityLibrary.gd"
-PersonalityManager="*res://Scripts/PersonalityManager.gd"
-Character="*res://Scripts/character.gd"
+CharacterData="*res://Scripts/Systems/CharacterData.cs"
 
 [dotnet]
 

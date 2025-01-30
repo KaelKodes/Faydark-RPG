@@ -1,0 +1,55 @@
+[gd_scene load_steps=2 format=3 uid="uid://ba8kio6pygeo8"]
+
+[ext_resource type="Texture2D" uid="uid://dq5lrw846tofi" path="res://Assets/Tiny Swords/Tiny Swords (Update 010)/UI/Banners/Carved_9Slides.png" id="1_ki2s5"]
+
+[node name="Control Panel" type="Node2D"]
+
+[node name="Carved9Slides" type="Sprite2D" parent="."]
+position = Vector2(1030, 441)
+scale = Vector2(1.28125, 2.17708)
+texture = ExtResource("1_ki2s5")
+
+[node name="Control Panel" type="VBoxContainer" parent="."]
+z_index = 1
+offset_left = 915.0
+offset_top = 245.0
+offset_right = 1144.0
+offset_bottom = 636.0
+theme_override_constants/separation = 10
+
+[node name="Label" type="Label" parent="Control Panel"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.0156863, 0.101961, 0.0980392, 0.623529)
+theme_override_font_sizes/font_size = 30
+text = "Control Panel"
+horizontal_alignment = 1
+
+[node name="PausePlay" type="Button" parent="Control Panel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Pause/Play"
+
+[node name="Character" type="Button" parent="Control Panel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Character"
+
+[node name="Inventory" type="Button" parent="Control Panel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Inventory"
+
+[node name="Map" type="Button" parent="Control Panel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Map"
+
+[node name="SpellsAbilities" type="Button" parent="Control Panel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Spells & Abilities"
+
+[node name="SaveQuit" type="Button" parent="Control Panel"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 25
+text = "Save & Quit"

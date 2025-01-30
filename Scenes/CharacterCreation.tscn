@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://d0febpe8dycnv"]
 
-[ext_resource type="Script" uid="uid://bq5vxex7u6xv2" path="res://Scripts/character_creation.gd" id="1_17t2p"]
+[ext_resource type="Script" uid="uid://cf5ktetlmcyjv" path="res://Scripts/Systems/CharacterCreation.cs" id="1_17t2p"]
 
 [node name="CharacterCreation" type="Node2D"]
 script = ExtResource("1_17t2p")
@@ -19,11 +19,11 @@ layout_mode = 2
 size_flags_horizontal = 3
 
 [node name="Label" type="Label" parent="PreviewContainer/VitalsBox"]
+z_index = 1
 custom_minimum_size = Vector2(75, 0)
 layout_mode = 2
 theme_override_font_sizes/font_size = 19
 text = "Vitals"
-horizontal_alignment = 1
 uppercase = true
 
 [node name="OffenseBox" type="VBoxContainer" parent="PreviewContainer"]
@@ -56,7 +56,7 @@ text = "Stats"
 horizontal_alignment = 1
 uppercase = true
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="PlayerInputContainer" type="VBoxContainer" parent="."]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -70,36 +70,30 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 alignment = 1
 
-[node name="Label" type="Label" parent="VBoxContainer"]
+[node name="Label" type="Label" parent="PlayerInputContainer"]
 layout_mode = 2
 text = "Name Your  Character:"
 horizontal_alignment = 1
 
-[node name="LineEdit" type="LineEdit" parent="VBoxContainer"]
+[node name="LineEdit" type="LineEdit" parent="PlayerInputContainer"]
 layout_mode = 2
 
-[node name="Label2" type="Label" parent="VBoxContainer"]
-layout_mode = 2
-text = "Select Personality"
-horizontal_alignment = 1
-
-[node name="OptionButton" type="OptionButton" parent="VBoxContainer"]
-layout_mode = 2
-
-[node name="Label3" type="Label" parent="VBoxContainer"]
+[node name="Label2" type="Label" parent="PlayerInputContainer"]
+z_index = 2
 layout_mode = 2
 text = "Select Class"
 horizontal_alignment = 1
 
-[node name="OptionButton2" type="OptionButton" parent="VBoxContainer"]
+[node name="OptionButton" type="OptionButton" parent="PlayerInputContainer"]
 layout_mode = 2
 
-[node name="Start Game" type="Button" parent="."]
-offset_left = 153.0
-offset_top = 207.0
-offset_right = 224.0
-offset_bottom = 238.0
-text = "Confirm"
+[node name="Label3" type="Label" parent="PlayerInputContainer"]
+layout_mode = 2
+text = "Select Personality"
+horizontal_alignment = 1
+
+[node name="OptionButton2" type="OptionButton" parent="PlayerInputContainer"]
+layout_mode = 2
 
 [node name="Mental_VBox" type="VBoxContainer" parent="."]
 offset_left = 885.0
@@ -120,5 +114,13 @@ theme_override_font_sizes/font_size = 19
 text = "Personality Traits"
 uppercase = true
 
-[connection signal="item_selected" from="VBoxContainer/OptionButton" to="." method="_on_personality_dropdown_item_selected"]
-[connection signal="item_selected" from="VBoxContainer/OptionButton2" to="." method="_on_option_button_2_item_selected"]
+[node name="Confirm" type="Button" parent="."]
+offset_left = 153.0
+offset_top = 207.0
+offset_right = 224.0
+offset_bottom = 238.0
+text = "Confirm"
+
+[connection signal="item_selected" from="PlayerInputContainer/OptionButton" to="." method="_on_personality_dropdown_item_selected"]
+[connection signal="item_selected" from="PlayerInputContainer/OptionButton2" to="." method="_on_option_button_2_item_selected"]
+[connection signal="pressed" from="Confirm" to="." method="OnConfirmPressed"]

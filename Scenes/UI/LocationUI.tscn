@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3 uid="uid://c1g7rx8wukm0e"]
+
+[ext_resource type="Texture2D" uid="uid://boewymewinh8g" path="res://Assets/Tiny Swords/Tiny Swords (Update 010)/UI/Ribbons/Ribbon_Blue_3Slides.png" id="1_24ylk"]
+
+[node name="LocationUi" type="Control"]
+layout_mode = 3
+anchors_preset = 0
+
+[node name="RibbonBlue3Slides" type="Sprite2D" parent="."]
+position = Vector2(552, 328)
+scale = Vector2(1.40625, 1.28125)
+texture = ExtResource("1_24ylk")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 0
+offset_left = 468.0
+offset_top = 289.0
+offset_right = 632.0
+offset_bottom = 346.0
+
+[node name="DayTime" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Day & Time"
+horizontal_alignment = 1
+
+[node name="GridBiome" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Grid - Biome "
+horizontal_alignment = 1

@@ -1,6 +1,6 @@
 [gd_scene load_steps=4 format=3 uid="uid://cgaym3y5kbj4l"]
 
-[ext_resource type="Script" uid="uid://dw05w0ev6ku50" path="res://Scripts/start_menu.gd" id="1_juhg0"]
+[ext_resource type="Script" uid="uid://b1i06twbeicj4" path="res://Scripts/SceneScripts/start_menu.gd" id="1_juhg0"]
 
 [sub_resource type="SystemFont" id="SystemFont_thu50"]
 font_names = PackedStringArray("Impact")
@@ -72,25 +72,25 @@ alignment = 1
 [node name="Seperator2" type="Control" parent="MarginContainer/HBoxContainer/VBoxContainer"]
 layout_mode = 2
 
-[node name="New" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="New_Button" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 theme_override_fonts/font = SubResource("SystemFont_m7x51")
 text = "New"
 
-[node name="Load" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="Load_Button" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 theme_override_fonts/font = SubResource("SystemFont_m7x51")
 text = "Load"
 
-[node name="Settings" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="Settings_Button" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 theme_override_fonts/font = SubResource("SystemFont_m7x51")
 text = "Settings"
 
-[node name="Quit" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+[node name="Quit_Button" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
 custom_minimum_size = Vector2(120, 0)
 layout_mode = 2
 theme_override_fonts/font = SubResource("SystemFont_m7x51")
@@ -102,5 +102,5 @@ text = "Quit"
 
 [node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
 
-[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/New" to="." method="_on_new_pressed"]
-[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/Quit" to="." method="_on_quit_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/New_Button" to="." method="_on_new_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/Quit_Button" to="." method="_on_quit_button_pressed"]
