@@ -908,4 +908,4 @@ shape = SubResource("CapsuleShape2D_nytcm")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="PC/Warrior"]
 position = Vector2(-7, -1)
 sprite_frames = SubResource("SpriteFrames_c3m54")
-animation = &"walk_E"
+animation = &"walk_S"

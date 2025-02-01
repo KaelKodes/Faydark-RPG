@@ -1,0 +1,9 @@
+[gd_scene format=3 uid="uid://b01jsh4xxg4im"]
+
+[node name="HexTile" type="Node2D"]
+
+[node name="Outline" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -32, 28, -16, 28, 16, 0, 32, -28, 16, -28, -16)
+
+[node name="Fill" type="Polygon2D" parent="."]
+polygon = PackedVector2Array(0, -32, 28, -16, 28, 16, 0, 32, -28, 16, -28, -16)

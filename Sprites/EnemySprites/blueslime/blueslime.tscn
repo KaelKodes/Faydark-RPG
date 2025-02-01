@@ -1,6 +1,6 @@
 [gd_scene load_steps=40 format=3 uid="uid://c1loseugbyub6"]
 
-[ext_resource type="Script" uid="uid://cyadi70haqnw6" path="res://Sprites/EnemySprites/blueslime.gd" id="1_jgjwk"]
+[ext_resource type="Script" uid="uid://cyadi70haqnw6" path="res://Sprites/EnemySprites/blueslime/blueslime.gd" id="1_jgjwk"]
 [ext_resource type="Texture2D" uid="uid://ch1tj18ec8ed3" path="res://Assets/mystic_woods_free_2.2/sprites/characters/slime.png" id="2_fp3vc"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_rlfvp"]
@@ -296,8 +296,9 @@ script = ExtResource("1_jgjwk")
 [node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="CharacterBody2D"]
 position = Vector2(229, 108)
 sprite_frames = SubResource("SpriteFrames_enhy3")
-animation = &"walk_S"
-frame_progress = 0.549216
+animation = &"idle_S"
+frame = 3
+frame_progress = 0.0514911
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="CharacterBody2D"]
 position = Vector2(229, 108)
