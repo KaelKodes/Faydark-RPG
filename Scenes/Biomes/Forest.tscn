@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://2v3837jlumly"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_i2kbo"]
+cell_size = 32.0
+
+[node name="Forest" type="Node2D"]
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+
+[node name="Label" type="Label" parent="TileMapLayer"]
+offset_left = -42.0
+offset_right = 86.0
+offset_bottom = 23.0
+text = "Forest"
+
+[node name="Props" type="Node2D" parent="."]
+
+[node name="Navigation" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_i2kbo")
+
+[node name="EdgeMarkers" type="Node2D" parent="."]
+
+[node name="Edge_N" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_NE" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_NW" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_S" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_SE" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_SW" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Camera2D" type="Camera2D" parent="."]

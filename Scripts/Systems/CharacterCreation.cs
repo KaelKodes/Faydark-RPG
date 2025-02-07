@@ -2,6 +2,7 @@ using Godot;
 using MySqlConnector;
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 public partial class CharacterCreation : Node2D
 {
@@ -82,53 +83,55 @@ public partial class CharacterCreation : Node2D
 		}
 	}
 	private void LoadClasses()
+{
+	using (var connection = new MySqlConnection(CONNECTION_STRING))
 	{
-		using (var connection = new MySqlConnection(CONNECTION_STRING))
+		try
 		{
-			try
-			{
-				connection.Open();
-				GD.Print("✅ Connected to MySQL - Loading Unlocked Classes...");
+			connection.Open();
+			GD.Print("✅ Connected to MySQL - Loading Unlocked Classes...");
 
-				string query = "SELECT * FROM classes WHERE unlocked = 1;";
-				using (var command = new MySqlCommand(query, connection))
-				using (var reader = command.ExecuteReader())
+			string query = "SELECT * FROM classes WHERE unlocked = 1;";
+			using (var command = new MySqlCommand(query, connection))
+			using (var reader = command.ExecuteReader())
+			{
+				while (reader.Read())
 				{
-					while (reader.Read())
+					string className = reader["class_name"].ToString();
+					GD.Print($"🔹 Adding Class: {className}");
+					classDropdown.AddItem(className);
+
+					// Store class modifiers
+					Dictionary<string, float> modifiers = new Dictionary<string, float>();
+					for (int i = 0; i < reader.FieldCount; i++)
 					{
-						string className = reader["class_name"].ToString();
-						GD.Print($"🔹 Adding Class: {className}");
-						classDropdown.AddItem(className);
-
-						// Store class modifiers
-						Dictionary<string, float> modifiers = new Dictionary<string, float>();
-						for (int i = 0; i < reader.FieldCount; i++)
+						string column = reader.GetName(i);
+						if (column.StartsWith("mod_"))
 						{
-							string column = reader.GetName(i);
-							if (column.StartsWith("mod_"))
-							{
-								string statName = column.Substring(4); // Remove 'mod_' prefix
-								modifiers[statName] = Convert.ToSingle(reader[column]);
-							}
+							string statName = column.Substring(4); // Remove 'mod_' prefix
+							modifiers[statName] = Convert.ToSingle(reader[column]);
 						}
-						classModifiers[className] = modifiers;
 					}
+					classModifiers[className] = modifiers;
 				}
-
-				// 🛠 DEBUGGING: Print all stored class modifiers
-				foreach (var key in classModifiers.Keys)
-				{
-					GD.Print($"✅ Class Stored: {key}");
-				}
-
-				classDropdown.Connect("item_selected", new Callable(this, nameof(OnClassSelected)));
 			}
-			catch (Exception ex)
+
+			// ✅ Manually add "Base" class to classModifiers
+			if (!classModifiers.ContainsKey("Base"))
 			{
-				GD.PrintErr("❌ Failed to load classes: ", ex.Message);
+				GD.Print("⚠️ 'Base' class not found in database. Adding manually...");
+				classModifiers["Base"] = new Dictionary<string, float>(); // Initialize empty stats
 			}
+
+			classDropdown.Connect("item_selected", new Callable(this, nameof(OnClassSelected)));
+		}
+		catch (Exception ex)
+		{
+			GD.PrintErr("❌ Failed to load classes: ", ex.Message);
 		}
 	}
+}
+
 	private void LoadBaseStats()
 	{
 		using (var connection = new MySqlConnection(CONNECTION_STRING))
@@ -295,7 +298,7 @@ public partial class CharacterCreation : Node2D
 			{
 				float roundedValue = (float)Math.Round(updatedStats[key], 2); // ✅ Round to 2 decimals
 				statLabels[key].Text = $"{FormatStatName(key)}: {roundedValue.ToString("0.00")}"; // ✅ Always 2 decimals
-				GD.Print($"🔹 UI Updated: {key} = {roundedValue.ToString("0.00")}");
+				//GD.Print($"🔹 UI Updated: {key} = {roundedValue.ToString("0.00")}");
 			}
 			else if (baseStats.ContainsKey(key))
 			{
@@ -423,7 +426,7 @@ public partial class CharacterCreation : Node2D
 				if (updatedStats.ContainsKey(key) && baseStats.ContainsKey(key))
 				{
 					updatedStats[key] = baseStats[key]; // Reset to Base class default
-					GD.Print($"🔄 Reset {key} to base value: {updatedStats[key]}");
+					//GD.Print($"🔄 Reset {key} to base value: {updatedStats[key]}");
 				}
 			}
 		}
@@ -449,7 +452,7 @@ public partial class CharacterCreation : Node2D
 				updatedStats[key] = Mathf.Clamp(updatedStats[key], 0.00f, 1.00f);
 
 				float after = updatedStats[key];
-				GD.Print($"🔹 {key}: {before} -> {after} (after personality mod, clamped)");
+				//GD.Print($"🔹 {key}: {before} -> {after} (after personality mod, clamped)");
 
 			}
 		}
@@ -470,11 +473,21 @@ public partial class CharacterCreation : Node2D
 					float before = updatedStats[key];
 					updatedStats[key] += classModifiers[selectedClass][key];
 
-					// ✅ Clamp to keep value between 0 and 1
-					updatedStats[key] = Mathf.Clamp(updatedStats[key], 0.00f, 1.00f);
+					// ✅ Clamp PTs to keep value between 0 and 1
+					// Only clamp personality-related stats
+if (personalityModifiers.ContainsKey(selectedPersonality) && personalityModifiers[selectedPersonality].ContainsKey(key))
+{
+	updatedStats[key] = Mathf.Clamp(updatedStats[key], 0.00f, 1.00f);
+	//GD.Print($"🔹 Personality Stat Clamped: {key} -> {updatedStats[key]}");
+}
+else
+{
+	//GD.Print($"🔹 Non-Personality Stat (No Clamp): {key} -> {updatedStats[key]}");
+}
+
 
 					float after = updatedStats[key];
-					GD.Print($"🔹 {key}: {before} -> {after} (after class mod, clamped)");
+					//GD.Print($"🔹 {key}: {before} -> {after} (after class mod, clamped)");
 				}
 			}
 		}
@@ -489,62 +502,71 @@ public partial class CharacterCreation : Node2D
 		return updatedStats;
 	}
 
-	private void OnConfirmPressed()
+private async void OnConfirmPressed()
+{
+	CharacterName = characterNameInput.Text.Trim();
+	if (CharacterName == "")
 	{
-		CharacterName = characterNameInput.Text.Trim();
-		if (CharacterName == "")
+		CharacterName = "New Hero";
+	}
+
+	GD.Print($"✅ Character Name Set: {CharacterName}");
+
+	CharacterData characterData = CharacterData.Instance;
+
+	int selectedPersonalityID = personalityIDs.ContainsKey(selectedPersonality) ? personalityIDs[selectedPersonality] : -1;
+	bool isPersonalityLocked = personalityLocked.ContainsKey(selectedPersonality) ? personalityLocked[selectedPersonality] : false;
+
+	Dictionary<string, float> fullStats = new Dictionary<string, float>(baseStats);
+
+	// ✅ Apply class modifiers safely
+	foreach (var key in classModifiers[selectedClass].Keys)
+	{
+		if (fullStats.ContainsKey(key))
 		{
-			CharacterName = "New Hero";
+			fullStats[key] += classModifiers[selectedClass][key];
 		}
+	}
 
-		GD.Print($"✅ Character Name Set: {CharacterName}");
-
-		CharacterData characterData = CharacterData.Instance;
-
-		int selectedPersonalityID = personalityIDs.ContainsKey(selectedPersonality) ? personalityIDs[selectedPersonality] : -1;
-		bool isPersonalityLocked = personalityLocked.ContainsKey(selectedPersonality) ? personalityLocked[selectedPersonality] : false;
-
-		Dictionary<string, float> fullStats = new Dictionary<string, float>(baseStats);
-
-		// ✅ Apply class modifiers safely
-		foreach (var key in classModifiers[selectedClass].Keys)
+	// ✅ Apply personality modifiers safely
+	if (personalityModifiers.ContainsKey(selectedPersonality))
+	{
+		foreach (var key in personalityModifiers[selectedPersonality].Keys)
 		{
 			if (fullStats.ContainsKey(key))
 			{
-				fullStats[key] += classModifiers[selectedClass][key];
+				fullStats[key] += personalityModifiers[selectedPersonality][key];
 			}
-		}
-
-		// ✅ Apply personality modifiers safely
-		if (personalityModifiers.ContainsKey(selectedPersonality))
-		{
-			foreach (var key in personalityModifiers[selectedPersonality].Keys)
+			else
 			{
-				if (fullStats.ContainsKey(key))
-				{
-					fullStats[key] += personalityModifiers[selectedPersonality][key];
-				}
-				else
-				{
-					GD.PrintErr($"⚠️ Warning: Personality stat '{key}' not found in baseStats.");
-				}
+				GD.PrintErr($"⚠️ Warning: Personality stat '{key}' not found in baseStats.");
 			}
 		}
-		else
-		{
-			GD.PrintErr($"❌ No personality modifiers found for {selectedPersonality}");
-		}
-
-		Vector3 defaultPosition = new Vector3(0, 0, 0);
-		string defaultZone = "StartingArea";
-		List<int> emptyInventory = new List<int>();
-
-		characterData.SetCharacterData(-1, CharacterName, selectedClass, selectedPersonality, fullStats, defaultPosition, defaultZone, emptyInventory);
-		characterData.PersonalityID = selectedPersonalityID;
-
-		characterData.PrintCharacterData();
-
-		GetTree().ChangeSceneToFile("res://Scenes/GameScene.tscn");
 	}
+	else
+	{
+		GD.PrintErr($"❌ No personality modifiers found for {selectedPersonality}");
+	}
+
+	Vector3 defaultPosition = new Vector3(0, 0, 0);
+	string defaultZone = "StartingArea";
+	List<int> emptyInventory = new List<int>();
+
+	characterData.SetCharacterData(-1, CharacterName, selectedClass, selectedPersonality, fullStats, defaultPosition, defaultZone, emptyInventory);
+	characterData.PersonalityID = selectedPersonalityID;
+
+	// ✅ Correct way to update `current_stats`
+	foreach (var stat in fullStats)
+	{
+		characterData.SetStat(stat.Key, stat.Value);
+	}
+
+	characterData.PrintCharacterData();
+
+	// ✅ Load World first
+	GD.Print("🌍 Loading World Scene...");
+	GetTree().ChangeSceneToFile("res://Scenes/World/World.tscn");
+}
+
 
 }

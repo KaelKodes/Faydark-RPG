@@ -11,12 +11,19 @@ public partial class World : Node2D
 	private const int GRID_WIDTH = 50; // Number of hexes horizontally
 	private const int GRID_HEIGHT = 50; // Number of hexes vertically
 
+
+	private Button nextButton;
+
 	private Vector2 dragStart;
 	private bool dragging = false;
 
-	private string[,] biomeMap;
+	public static string[,] biomeMap; // ✅ Now biomeMap is static
 	private PackedScene hexScene = (PackedScene)ResourceLoader.Load("res://Scenes/World/UI/HexTile.tscn");
 	private Dictionary<Vector2I, Node2D> hexInstances = new Dictionary<Vector2I, Node2D>();
+	public static Dictionary<Vector2I, string> worldMap = new Dictionary<Vector2I, string>(); // Stores biome data
+	public static Vector2I playerTile = new Vector2I(25, 25); // Player starts at (0,1)
+	[Export] private Camera2D camera; // ✅ Assign this in the Godot editor
+	private Vector2 wildernessPosition = new Vector2(25, 25); // ✅ Adjust to actual location
 
 
 	#region Biome Data
@@ -82,84 +89,203 @@ public partial class World : Node2D
 	#endregion
 
 	#region World Generation
+	public static bool biomeMapReady = false; // ✅ Add this flag
+
+	public static World Instance { get; private set; }
+	public bool IsReady { get; private set; } = false;
+
 	public override async void _Ready()
 	{
+		GD.Print("🌍 Starting World Generation...");
+
 		await GenerateHexGrid();
-		await Task.Delay(1500);
+		await Task.Delay(1000); // ✅ Shorter delay to ensure hexes exist
 		await GenerateForestsAndSwamps();
-		await Task.Delay(1500);
+		await Task.Delay(1000);
 		await FinalizeDeepWaterAndMountains();
+
+		biomeMapReady = true;
+		IsReady = true;
+		GD.Print("✅ World Generation Complete!");
+
+		await Task.Delay(500); // ✅ Small delay to prevent async issues
+
+		GD.Print("🎥 Panning camera to Wilderness...");
+		PanCameraTo(new Vector2(1450, 1200), 3.0f); // ✅ Replace with the actual Wilderness tile position
+
+		GD.Print("🎮 Waiting for NextButton...");
+		nextButton = GetNode<Button>("NextButton");
+		nextButton.Pressed += OnNextButtonPressed;
 	}
+
+
+	private void OnNextButtonPressed()
+	{
+		GD.Print("🎮 Player clicked Next! Transitioning to GameScene...");
+		// ✅ Enable GameScene & SceneManager before switching scenes
+		var gameScene = GetTree().Root.GetNodeOrNull("GameScene");
+		var sceneManager = GetTree().Root.GetNodeOrNull("SceneManager");
+
+		if (gameScene != null)
+		{
+			GD.Print("✅ Enabling GameScene...");
+			((GameScene)gameScene).EnableGameScene(); // ✅ Activate GameScene
+		}
+
+		if (sceneManager != null)
+		{
+			GD.Print("✅ Enabling SceneManager...");
+			((SceneManager)sceneManager).EnableSceneManager(); // ✅ Activate SceneManager
+		}
+		GetTree().ChangeSceneToFile("res://Scenes/UI/GameScene.tscn");
+	}
+
+	private async Task PanCameraTo(Vector2 targetPosition, float duration)
+	{
+		if (camera == null)
+		{
+			GD.PrintErr("❌ Camera2D not found!");
+			return;
+		}
+
+		Vector2 startPos = camera.GlobalPosition;
+		float elapsed = 0f;
+
+		while (elapsed < duration)
+		{
+			await ToSignal(GetTree(), "process_frame"); // Wait for next frame
+
+			float delta = (float)GetProcessDeltaTime(); // Correct way to get delta time
+			elapsed += delta;
+			float t = Mathf.Clamp(elapsed / duration, 0f, 1f); // Ensure t stays between 0 and 1
+
+			camera.GlobalPosition = startPos.Lerp(targetPosition, t);
+		}
+
+		camera.GlobalPosition = targetPosition; // Ensure exact final position
+		GD.Print("✅ Camera pan complete!");
+
+		// 🔍 Call the zoom-in function after the pan is done
+		await ZoomCamera(1.5f, 3.0f); // Zooms in to 1.5x over 5 seconds
+	}
+
+	private async Task ZoomCamera(float targetZoom, float duration)
+	{
+		if (camera == null)
+		{
+			GD.PrintErr("❌ Camera2D not found!");
+			return;
+		}
+
+		GD.Print("🔍 Zooming in...");
+		Vector2 startZoom = camera.Zoom;
+		Vector2 endZoom = new Vector2(targetZoom, targetZoom);
+		float elapsed = 0f;
+
+		while (elapsed < duration)
+		{
+			await ToSignal(GetTree(), "process_frame");
+
+			float delta = (float)GetProcessDeltaTime();
+			elapsed += delta;
+			float t = Mathf.Clamp(elapsed / duration, 0f, 1f);
+
+			camera.Zoom = startZoom.Lerp(endZoom, t);
+		}
+
+		camera.Zoom = endZoom; // Ensure exact zoom level
+		GD.Print($"✅ Zoom-in complete! New Zoom: {camera.Zoom}");
+	}
+
+	public static Vector2 GetTilePosition(Vector2I tile)
+	{
+		return new Vector2(
+			HEX_RADIUS * Mathf.Sqrt(3) * (tile.X + 0.5f * (tile.Y % 2)),
+			HEX_RADIUS * 1.5f * tile.Y
+		);
+	}
+
 
 	private async Task GenerateHexGrid()
-{
-	biomeMap = new string[GRID_WIDTH, GRID_HEIGHT];
-	hexInstances.Clear(); // ✅ Ensure no duplicate instances
-	List<Node2D> newHexes = new List<Node2D>(); // ✅ Store instances before adding them
-
-	// Step 1: Generate Wilderness
-	int startX = GRID_WIDTH / 2;
-	int startY = GRID_HEIGHT / 2;
-	GrowBiomeCluster(startX, startY, "wilderness", GD.RandRange(1, 3));
-
-	// Step 2: Generate Lakes and Mountains
-	GenerateLargeBiomeClusters("lake", 40, 90, 2, 3);
-	GenerateLargeBiomeClusters("mountain", 50, 120, 3, 5);
-
-	// Step 2.5: Ensure all tiles are assigned a biome before rendering
-	for (int x = 0; x < GRID_WIDTH; x++)
 	{
-		for (int y = 0; y < GRID_HEIGHT; y++)
+		biomeMap = new string[GRID_WIDTH, GRID_HEIGHT];
+		hexInstances.Clear(); // ✅ Ensure no duplicate instances
+		List<Node2D> newHexes = new List<Node2D>(); // ✅ Store instances before adding them
+
+		// Step 1: Generate Wilderness
+		int startX = GRID_WIDTH / 2;
+		int startY = GRID_HEIGHT / 2;
+		GrowBiomeCluster(startX, startY, "wilderness", GD.RandRange(1, 3));
+
+		// Step 2: Generate Lakes and Mountains
+		GenerateLargeBiomeClusters("lake", 40, 90, 2, 3);
+		GenerateLargeBiomeClusters("mountain", 50, 120, 3, 5);
+
+		// Step 2.5: Ensure all tiles are assigned a biome before rendering
+		for (int x = 0; x < GRID_WIDTH; x++)
 		{
-			if (string.IsNullOrEmpty(biomeMap[x, y]))
+			for (int y = 0; y < GRID_HEIGHT; y++)
 			{
-				//GD.PrintErr($"WARNING: Unassigned tile at {x},{y}. Assigning default biome.");
-				biomeMap[x, y] = "plains"; // Default biome assignment
+				if (string.IsNullOrEmpty(biomeMap[x, y]))
+				{
+					//GD.PrintErr($"WARNING: Unassigned tile at {x},{y}. Assigning default biome.");
+					biomeMap[x, y] = "plains"; // Default biome assignment
+				}
 			}
 		}
-	}
 
-	// Step 3: Generate hex instances (MULTI-THREADED, but WITHOUT scene modifications)
-	Parallel.For(0, GRID_WIDTH, x =>
-	{
-		for (int y = 0; y < GRID_HEIGHT; y++)
+		// Step 3: Generate hex instances (MULTI-THREADED, but WITHOUT scene modifications)
+		Parallel.For(0, GRID_WIDTH, x =>
 		{
-			Vector2I tilePos = new Vector2I(x, y);
-			Node2D hexInstance = (Node2D)hexScene.Instantiate();
-
-			lock (hexInstances) // ✅ Prevents race conditions
+			for (int y = 0; y < GRID_HEIGHT; y++)
 			{
-				hexInstances[tilePos] = hexInstance;
-			}
+				Vector2I tilePos = new Vector2I(x, y);
+				Node2D hexInstance = (Node2D)hexScene.Instantiate();
 
-			hexInstance.Name = $"HexTile_{x}_{y}";
-			hexInstance.Position = AxialToPixel(x, y);
-			hexInstance.Modulate = new Color(1, 1, 1, 0); // Start transparent
+				lock (hexInstances) // ✅ Prevents race conditions
+				{
+					hexInstances[tilePos] = hexInstance;
+				}
 
-			lock (newHexes) // ✅ Store for safe scene modification later
-			{
-				newHexes.Add(hexInstance);
+				hexInstance.Name = $"HexTile_{x}_{y}";
+				hexInstance.Position = AxialToPixel(x, y);
+				hexInstance.Modulate = new Color(1, 1, 1, 0); // Start transparent
+
+				lock (newHexes) // ✅ Store for safe scene modification later
+				{
+					newHexes.Add(hexInstance);
+				}
 			}
+		});
+
+		// Step 4: SAFELY Add Nodes to Scene (MUST be on main thread)
+		foreach (var hex in newHexes)
+		{
+			AddChild(hex); // ✅ Now it's safe!
+
+			// Get the correct grid position for this hex
+			Vector2I gridPos = hexInstances.FirstOrDefault(kv => kv.Value == hex).Key;
+			ApplyBiome(hex, biomeMap[gridPos.X, gridPos.Y]); // ✅ Now we use the correct grid coordinates!
 		}
-	});
-
-	// Step 4: SAFELY Add Nodes to Scene (MUST be on main thread)
-	foreach (var hex in newHexes)
-{
-	AddChild(hex); // ✅ Now it's safe!
-
-	// Get the correct grid position for this hex
-	Vector2I gridPos = hexInstances.FirstOrDefault(kv => kv.Value == hex).Key;
-	ApplyBiome(hex, biomeMap[gridPos.X, gridPos.Y]); // ✅ Now we use the correct grid coordinates!
-}
 
 
-	// Step 5: Fade in tiles after placing them
-	foreach (var pos in hexInstances.Keys)
-	{
-		await FadeIn(hexInstances[pos]);
+		// Step 5: Fade in tiles after placing them
+		foreach (var pos in hexInstances.Keys)
+		{
+			await FadeIn(hexInstances[pos]);
+		}
+
+		// Set 6: Set Global as Instance as True
+		if (Instance == null)
+		{
+			Instance = this;
+			GD.Print("✅ World Singleton Initialized.");
+		}
+		else
+		{
+			QueueFree(); // Ensures only one instance exists
+		}
 	}
-}
 
 
 
@@ -336,6 +462,47 @@ public partial class World : Node2D
 	#endregion
 
 	#region Utilities
+	private string GetRandomBiome()
+	{
+		string[] biomes = { "Plains", "Forest", "Mountains", "Swamp", "Lake" };
+		return biomes[GD.Randi() % biomes.Length];
+	}
+
+	public static string GetBiomeAt(Vector2I tilePosition)
+{
+	if (biomeMap == null)
+	{
+		GD.PrintErr("❌ biomeMap is NULL! Returning 'wilderness'.");
+		return "wilderness"; // ✅ Ensure we always return a valid biome
+	}
+
+	if (tilePosition.X < 0 || tilePosition.X >= biomeMap.GetLength(0) ||
+		tilePosition.Y < 0 || tilePosition.Y >= biomeMap.GetLength(1))
+	{
+		GD.PrintErr($"❌ Tile {tilePosition} is out of bounds! Returning 'wilderness'.");
+		return "wilderness"; // ✅ Default biome for out-of-bounds tiles
+	}
+
+	string biome = biomeMap[tilePosition.X, tilePosition.Y];
+
+	if (string.IsNullOrEmpty(biome))
+	{
+		GD.PrintErr($"❌ Biome not assigned for Tile {tilePosition}! Defaulting to 'wilderness'.");
+		return "wilderness"; // ✅ Avoid null or empty biome issues
+	}
+
+	return biome;
+}
+
+
+
+
+	public static void SetPlayerPosition(Vector2I newPosition)
+	{
+		playerTile = newPosition;
+		GD.Print($"🚶 Player moved to Tile {newPosition}, Biome: {GetBiomeAt(newPosition)}");
+	}
+
 	private async Task FadeIn(Node2D hex)
 	{
 		float alpha = 0;
@@ -397,6 +564,7 @@ public partial class World : Node2D
 		}
 		return true;
 	}
+
 
 
 	#endregion

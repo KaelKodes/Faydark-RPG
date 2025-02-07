@@ -1,4 +1,4 @@
-[gd_scene load_steps=2 format=3 uid="uid://cxuc8ysa7f320"]
+[gd_scene load_steps=2 format=3 uid="uid://bhu2rawrywsb0"]
 
 [ext_resource type="Script" uid="uid://b8iju1apvhbca" path="res://Scripts/Systems/DatabaseManager.cs" id="1_lc1oi"]
 

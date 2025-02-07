@@ -2,8 +2,20 @@
 
 [ext_resource type="Script" uid="uid://b7mmmgyq5q4y1" path="res://Scenes/World/World.cs" id="1_t1gg8"]
 
-[node name="World" type="Node2D"]
+[node name="World" type="Node2D" node_paths=PackedStringArray("camera")]
 script = ExtResource("1_t1gg8")
+camera = NodePath("Camera2D")
+metadata/_edit_vertical_guides_ = [1428.0]
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(571, 320)
+
+[node name="NextButton" type="Button" parent="."]
+z_index = 2
+offset_left = 1210.0
+offset_top = 1381.0
+offset_right = 1688.0
+offset_bottom = 1412.0
+text = "NEXT"
+
+[connection signal="pressed" from="NextButton" to="." method="onnextbuttonpressed"]

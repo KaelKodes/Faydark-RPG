@@ -3,8 +3,15 @@ extends CharacterBody2D
 func _physics_process(delta):
 	var direction = Vector2.ZERO
 
-	# Get movement speed from stats
-	var speed = CharacterData.current_stats.get("movement_speed", 100)  # Default to 100 if not found
+	# ✅ Get CharacterData instance safely
+	var character_data = get_node_or_null("/root/CharacterData")
+
+	if character_data == null:
+		print("❌ CharacterData not found!")
+		return
+
+	# ✅ Get movement speed using GetStat()
+	var speed = character_data.call("GetStat", "movement_speed")
 
 	# Get movement input
 	if Input.is_action_pressed("ui_right"):
@@ -22,6 +29,7 @@ func _physics_process(delta):
 	# Move character
 	velocity = direction * speed * delta  # ✅ Ensures frame-rate independent movement
 	move_and_slide()
+
 
 	# Play animation based on direction
 	if direction != Vector2.ZERO:

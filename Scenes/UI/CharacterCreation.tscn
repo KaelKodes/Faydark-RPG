@@ -1,0 +1,176 @@
+[gd_scene load_steps=5 format=3 uid="uid://d0febpe8dycnv"]
+
+[ext_resource type="Script" uid="uid://cf5ktetlmcyjv" path="res://Scripts/Systems/CharacterCreation.cs" id="1_17t2p"]
+[ext_resource type="Texture2D" uid="uid://bvbgu0cdawvv1" path="res://Assets/Mine/DALL·E 2025-02-06 13.16.51 - A 2D pixel art background for a fantasy RPG, depicting a vast and immersive natural landscape from a first-person ground perspective. The scene featur.webp" id="2_ylvlj"]
+[ext_resource type="Texture2D" uid="uid://c0dvi4yh42mas" path="res://Assets/Mine/StartMenuBKG_noButton.webp" id="3_65nj0"]
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_ylvlj"]
+
+[node name="CharacterCreation" type="Node2D"]
+script = ExtResource("1_17t2p")
+
+[node name="PreviewContainer" type="HBoxContainer" parent="."]
+z_index = 2
+offset_left = 21.0
+offset_top = 320.0
+offset_right = 692.0
+offset_bottom = 358.0
+size_flags_horizontal = 3
+theme_override_constants/separation = 57
+
+[node name="VitalsBox" type="VBoxContainer" parent="PreviewContainer"]
+custom_minimum_size = Vector2(75, 0.075)
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Label" type="Label" parent="PreviewContainer/VitalsBox"]
+z_index = 1
+custom_minimum_size = Vector2(75, 0)
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Vitals"
+horizontal_alignment = 1
+uppercase = true
+
+[node name="OffenseBox" type="VBoxContainer" parent="PreviewContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PreviewContainer/OffenseBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Offense"
+horizontal_alignment = 1
+uppercase = true
+
+[node name="DefenseBox" type="VBoxContainer" parent="PreviewContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PreviewContainer/DefenseBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Defense"
+horizontal_alignment = 1
+uppercase = true
+
+[node name="StatsBox" type="VBoxContainer" parent="PreviewContainer"]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="PreviewContainer/StatsBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 19
+text = "Stats"
+horizontal_alignment = 1
+uppercase = true
+
+[node name="PlayerInputContainer" type="VBoxContainer" parent="."]
+self_modulate = Color(1, 1, 1, 0.219608)
+z_index = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 22.0
+offset_top = 10.0
+offset_right = 355.0
+offset_bottom = 200.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
+
+[node name="Label" type="Label" parent="PlayerInputContainer"]
+layout_mode = 2
+text = "Name Your  Character:"
+horizontal_alignment = 1
+
+[node name="LineEdit" type="LineEdit" parent="PlayerInputContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Label2" type="Label" parent="PlayerInputContainer"]
+z_index = 2
+layout_mode = 2
+text = "Select Class"
+horizontal_alignment = 1
+
+[node name="OptionButton" type="OptionButton" parent="PlayerInputContainer"]
+z_index = 3
+layout_mode = 2
+alignment = 1
+
+[node name="Label3" type="Label" parent="PlayerInputContainer"]
+layout_mode = 2
+text = "Select Personality"
+horizontal_alignment = 1
+
+[node name="OptionButton2" type="OptionButton" parent="PlayerInputContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="Mental_VBox" type="VBoxContainer" parent="."]
+z_index = 2
+offset_left = 885.0
+offset_top = 101.0
+offset_right = 1020.0
+offset_bottom = 143.0
+
+[node name="Label" type="Label" parent="Mental_VBox"]
+layout_mode = 2
+text = "Personality Traits"
+
+[node name="Label" type="Label" parent="."]
+z_index = 2
+offset_left = 863.0
+offset_top = 69.0
+offset_right = 1093.0
+offset_bottom = 112.0
+theme_override_font_sizes/font_size = 19
+text = "Personality Traits"
+horizontal_alignment = 1
+uppercase = true
+
+[node name="Confirm" type="Button" parent="."]
+z_index = 2
+offset_left = 153.0
+offset_top = 207.0
+offset_right = 224.0
+offset_bottom = 238.0
+text = "Confirm"
+
+[node name="BKG" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(577.5, 322.5)
+scale = Vector2(0.713728, 0.704102)
+texture = ExtResource("2_ylvlj")
+
+[node name="BKG2" type="Sprite2D" parent="."]
+visible = false
+z_index = -1
+position = Vector2(577.5, 322.5)
+scale = Vector2(0.713728, 0.704102)
+texture = ExtResource("3_65nj0")
+
+[node name="Sprite2D2" type="Sprite2D" parent="."]
+modulate = Color(0.258824, 0.258824, 0.258824, 0.54902)
+position = Vector2(189.5, 129.5)
+scale = Vector2(345, 235)
+texture = SubResource("CanvasTexture_ylvlj")
+
+[node name="Sprite2D4" type="Sprite2D" parent="."]
+modulate = Color(0.258824, 0.258824, 0.258824, 0.564706)
+position = Vector2(981, 333.5)
+scale = Vector2(240, 545)
+texture = SubResource("CanvasTexture_ylvlj")
+
+[node name="Sprite2D3" type="Sprite2D" parent="."]
+modulate = Color(0.258824, 0.258824, 0.258824, 0.564706)
+position = Vector2(431, 458.5)
+scale = Vector2(834, 289)
+texture = SubResource("CanvasTexture_ylvlj")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(577, 324)
+
+[connection signal="item_selected" from="PlayerInputContainer/OptionButton" to="." method="_on_personality_dropdown_item_selected"]
+[connection signal="item_selected" from="PlayerInputContainer/OptionButton2" to="." method="_on_option_button_2_item_selected"]
+[connection signal="pressed" from="Confirm" to="." method="OnConfirmPressed"]

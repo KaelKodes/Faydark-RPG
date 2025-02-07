@@ -1,0 +1,124 @@
+[gd_scene load_steps=7 format=3 uid="uid://cgaym3y5kbj4l"]
+
+[ext_resource type="Script" uid="uid://b1i06twbeicj4" path="res://Scripts/Systems/start_menu.gd" id="1_8wf1d"]
+[ext_resource type="Texture2D" uid="uid://bojset0o56gay" path="res://Assets/Tiny Swords/Tiny Swords (Update 010)/UI/Buttons/Button_Red_9Slides_Pressed.png" id="2_2ybwg"]
+[ext_resource type="Texture2D" uid="uid://dy1uclqh1si7y" path="res://Assets/Mine/DALL·E 2025-02-06 13.01.27 - A 2D pixel art background for a fantasy RPG, depicting a vast and immersive natural landscape. The scene features rolling grassy plains with scattered.webp" id="3_8wf1d"]
+[ext_resource type="Texture2D" uid="uid://duiashtl8j05j" path="res://Assets/Mine/FaydarkTitle.png" id="4_2ybwg"]
+
+[sub_resource type="SystemFont" id="SystemFont_m7x51"]
+font_names = PackedStringArray("Impact")
+subpixel_positioning = 0
+
+[sub_resource type="CanvasTexture" id="CanvasTexture_8wf1d"]
+
+[node name="Start_Menu" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 431.0
+offset_top = 569.0
+offset_right = -721.0
+offset_bottom = 91.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_8wf1d")
+metadata/_edit_vertical_guides_ = [0.0]
+
+[node name="TextureRect" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = -1006.0
+offset_top = -718.0
+offset_right = 142.0
+offset_bottom = -260.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ButtonRed9SlidesPressed" type="Sprite2D" parent="TextureRect"]
+modulate = Color(0.380392, 0.380392, 0.380392, 0.870588)
+z_index = -1
+position = Vector2(572, 115)
+scale = Vector2(1.26563, 1.32031)
+texture = ExtResource("2_2ybwg")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = -1.542
+anchor_bottom = 1.509
+offset_left = -1005.0
+offset_top = -490.86
+offset_right = 146.0
+offset_bottom = -738.53
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 12
+theme_override_constants/margin_top = 12
+theme_override_constants/margin_right = 12
+theme_override_constants/margin_bottom = 12
+
+[node name="HBoxContainer" type="HBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+
+[node name="VBoxContainer" type="VBoxContainer" parent="MarginContainer/HBoxContainer"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Seperator2" type="Control" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+layout_mode = 2
+
+[node name="New_Button" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_m7x51")
+text = "New"
+
+[node name="Load_Button" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_m7x51")
+text = "Load"
+
+[node name="Settings_Button" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_m7x51")
+text = "Settings"
+
+[node name="Quit_Button" type="Button" parent="MarginContainer/HBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+theme_override_fonts/font = SubResource("SystemFont_m7x51")
+text = "Quit"
+
+[node name="SaveFilePopup" type="PopupMenu" parent="."]
+
+[node name="PopupMenu" type="PopupMenu" parent="SaveFilePopup"]
+
+[node name="ConfirmationDialog" type="ConfirmationDialog" parent="."]
+
+[node name="PixelCampfireWallpaperByPhobicnovaD9Yoglr-pre" type="Sprite2D" parent="."]
+z_index = -2
+position = Vector2(-436.5, -569.5)
+scale = Vector2(0.712612, 0.700195)
+texture = ExtResource("3_8wf1d")
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(-434, -569)
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+texture = SubResource("CanvasTexture_8wf1d")
+
+[node name="FaydarkTitle" type="Sprite2D" parent="."]
+position = Vector2(-434, -757)
+scale = Vector2(0.760204, 0.415094)
+texture = ExtResource("4_2ybwg")
+
+[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/New_Button" to="." method="_on_new_button_pressed"]
+[connection signal="pressed" from="MarginContainer/HBoxContainer/VBoxContainer/Quit_Button" to="." method="_on_quit_button_pressed"]

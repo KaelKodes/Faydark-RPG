@@ -1,0 +1,41 @@
+[gd_scene load_steps=3 format=3 uid="uid://blrty8klx1v4r"]
+
+[ext_resource type="Script" uid="uid://b3ixihofmsjk1" path="res://Scripts/Biomes/Wilderness.cs" id="1_d36rg"]
+
+[sub_resource type="NavigationPolygon" id="NavigationPolygon_i2kbo"]
+cell_size = 32.0
+
+[node name="Wilderness" type="Node2D" node_paths=PackedStringArray("TileMapLayer")]
+script = ExtResource("1_d36rg")
+TileMapLayer = NodePath("TileMapLayer")
+
+[node name="TileMapLayer" type="TileMapLayer" parent="."]
+
+[node name="Label" type="Label" parent="TileMapLayer"]
+offset_left = 542.0
+offset_top = 292.0
+offset_right = 664.0
+offset_bottom = 473.0
+text = "Wilderness"
+
+[node name="Props" type="Node2D" parent="."]
+
+[node name="Navigation" type="NavigationRegion2D" parent="."]
+navigation_polygon = SubResource("NavigationPolygon_i2kbo")
+
+[node name="EdgeMarkers" type="Node2D" parent="."]
+
+[node name="Edge_N" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_NE" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_NW" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_S" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_SE" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Edge_SW" type="Marker2D" parent="EdgeMarkers"]
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(586, 324)

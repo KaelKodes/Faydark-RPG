@@ -1,0 +1,42 @@
+[gd_scene load_steps=5 format=3 uid="uid://docv2o7jswd2g"]
+
+[ext_resource type="Texture2D" uid="uid://m7ab5crevdw6" path="res://Assets/Tiny Swords/Tiny Swords (Update 010)/Resources/Resources/W_Idle.png" id="1_pcdfl"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_oftu6"]
+atlas = ExtResource("1_pcdfl")
+region = Rect2(0, 0, 128, 128)
+
+[sub_resource type="SpriteFrames" id="SpriteFrames_qo783"]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_oftu6")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}]
+
+[sub_resource type="CapsuleShape2D" id="CapsuleShape2D_ij2hc"]
+radius = 19.0
+height = 38.0
+
+[node name="Log" type="Node2D"]
+
+[node name="AnimatedSprite2D" type="AnimatedSprite2D" parent="."]
+sprite_frames = SubResource("SpriteFrames_qo783")
+animation = &"idle"
+
+[node name="StaticBody2D" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="StaticBody2D"]
+position = Vector2(-1, 20)
+shape = SubResource("CapsuleShape2D_ij2hc")
+
+[node name="Area2D" type="Area2D" parent="."]
+position = Vector2(3, -61)
+collision_layer = 2
+
+[node name="CollisionShape2D2" type="CollisionShape2D" parent="Area2D"]
+position = Vector2(-5, 81)
+shape = SubResource("CapsuleShape2D_ij2hc")
