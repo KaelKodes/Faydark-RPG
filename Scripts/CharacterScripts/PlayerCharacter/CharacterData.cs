@@ -59,7 +59,7 @@ public partial class CharacterData : Node
 			current_stats.Add(statName, value);
 		}
 
-		GD.Print($"✅ Stat updated: {statName} = {value}");
+		//GD.Print($"✅ Stat updated: {statName} = {value}");
 	}
 
 	public void SetCharacterData(int id, string name, string charClass, string personality, Dictionary<string, float> stats, Vector3 position, string zone, List<int> inventory)

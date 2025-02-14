@@ -393,7 +393,7 @@ public partial class CharacterCreation : Node2D
 
 		// Apply modifiers
 		Dictionary<string, float> updatedStats = UpdateStats();
-		GD.Print($"🔹 Updated Stats After Personality Change: {string.Join(", ", updatedStats)}");
+		//GD.Print($"🔹 Updated Stats After Personality Change: {string.Join(", ", updatedStats)}");
 
 		// Update the UI
 		UpdateUI(updatedStats);
@@ -497,7 +497,7 @@ else
 		}
 
 		// ✅ Debug output before returning stats
-		GD.Print($"✅ Final Stats After Modifiers Applied: {string.Join(", ", updatedStats)}");
+		//GD.Print($"✅ Final Stats After Modifiers Applied: {string.Join(", ", updatedStats)}");
 
 		return updatedStats;
 	}

@@ -462,37 +462,43 @@ public partial class World : Node2D
 	#endregion
 
 	#region Utilities
-	private string GetRandomBiome()
-	{
-		string[] biomes = { "Plains", "Forest", "Mountains", "Swamp", "Lake" };
-		return biomes[GD.Randi() % biomes.Length];
-	}
-
 	public static string GetBiomeAt(Vector2I tilePosition)
-{
-	if (biomeMap == null)
 	{
-		GD.PrintErr("❌ biomeMap is NULL! Returning 'wilderness'.");
-		return "wilderness"; // ✅ Ensure we always return a valid biome
+		if (biomeMap == null)
+		{
+			GD.PrintErr("❌ biomeMap is NULL!");
+			return "Unknown";
+		}
+
+		// ✅ FIX: Ensure only valid tiles are checked
+		if (!IsValidTile(tilePosition))
+		{
+			GD.PrintErr($"❌ Tile {tilePosition} is out of bounds! Defaulting to wilderness.");
+			return "wilderness";
+		}
+
+		if (string.IsNullOrEmpty(biomeMap[tilePosition.X, tilePosition.Y]))
+		{
+			GD.PrintErr($"❌ Biome not assigned for Tile {tilePosition}! Defaulting to wilderness.");
+			return "wilderness";
+		}
+
+		return biomeMap[tilePosition.X, tilePosition.Y];
 	}
 
-	if (tilePosition.X < 0 || tilePosition.X >= biomeMap.GetLength(0) ||
-		tilePosition.Y < 0 || tilePosition.Y >= biomeMap.GetLength(1))
+	// ✅ Utility function to check tile validity
+	private static bool IsValidTile(Vector2I tile)
 	{
-		GD.PrintErr($"❌ Tile {tilePosition} is out of bounds! Returning 'wilderness'.");
-		return "wilderness"; // ✅ Default biome for out-of-bounds tiles
+		return tile.X >= 0 && tile.X < GRID_WIDTH && tile.Y >= 0 && tile.Y < GRID_HEIGHT;
 	}
 
-	string biome = biomeMap[tilePosition.X, tilePosition.Y];
-
-	if (string.IsNullOrEmpty(biome))
+	private static bool IsPositionWithinBounds(Vector2I tilePosition)
 	{
-		GD.PrintErr($"❌ Biome not assigned for Tile {tilePosition}! Defaulting to 'wilderness'.");
-		return "wilderness"; // ✅ Avoid null or empty biome issues
+		return tilePosition.X >= 0 && tilePosition.X < GRID_WIDTH &&
+			   tilePosition.Y >= 0 && tilePosition.Y < GRID_HEIGHT;
 	}
 
-	return biome;
-}
+
 
 
 
@@ -565,6 +571,62 @@ public partial class World : Node2D
 		return true;
 	}
 
+	#endregion
+	#region Data
+	// ✅ Dictionary to store generated zones
+	private static Dictionary<Vector2I, ZoneCreation> savedZones = new Dictionary<Vector2I, ZoneCreation>();
+
+	// ✅ Check if a zone exists
+	public static bool ZoneExists(Vector2I tilePosition)
+	{
+		return savedZones.ContainsKey(tilePosition);
+	}
+
+	// ✅ Retrieve an existing zone
+	public static ZoneCreation GetZone(Vector2I tilePosition)
+	{
+		if (savedZones.TryGetValue(tilePosition, out ZoneCreation zone))
+		{
+			if (zone == null)
+			{
+				GD.PrintErr($"❌ ERROR: Zone at {tilePosition} was stored as NULL!");
+				return null;
+			}
+			GD.Print($"✅ Loaded existing zone for tile {tilePosition}");
+			return zone;
+		}
+		GD.PrintErr($"❌ ERROR: GetZone() - No zone found at {tilePosition}!");
+		return null;
+	}
+
+
+	// ✅ Save a new zone
+	public static void SaveZone(Vector2I tilePosition, ZoneCreation zone)
+	{
+		if (!savedZones.ContainsKey(tilePosition))
+		{
+			savedZones[tilePosition] = zone;
+			GD.Print($"✅ Saved zone data for tile {tilePosition}");
+		}
+	}
+	// ✅ Remove an existing zone from memory
+public static void RemoveZone(Vector2I tilePosition)
+{
+	if (savedZones.ContainsKey(tilePosition))
+	{
+		GD.Print($"🗑️ Removing zone at {tilePosition}");
+		savedZones.Remove(tilePosition);
+	}
+}
+
+// ✅ Convert a tile's position to a zone coordinate
+public static Vector2I GetZoneForTile(Vector2I tilePosition)
+{
+	int zoneSize = 10; // 👈 Adjust based on actual zone size
+	int zoneX = tilePosition.X / zoneSize;
+	int zoneY = tilePosition.Y / zoneSize;
+	return new Vector2I(zoneX, zoneY);
+}
 
 
 	#endregion

@@ -141,7 +141,7 @@ public partial class PCMovement : Node
 	if (newTilePos != World.playerTile)
 	{
 		World.SetPlayerPosition(newTilePos);
-		SceneManager.Instance.LoadCurrentBiome(); // 🚀 Trigger scene transition if needed
+		SceneManager.Instance.LoadCurrentZone(); // 🚀 Trigger scene transition if needed
 	}
 }
 

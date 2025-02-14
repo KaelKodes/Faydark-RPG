@@ -4,17 +4,9 @@ using System.Threading.Tasks;
 
 public partial class SceneManager : Node
 {
-
+	private bool isSceneManagerEnabled = false; // ✅ Prevents double execution
 	private static SceneManager _instance;
-	public static SceneManager Instance
-	{
-		get
-		{
-			if (_instance == null)
-				GD.PrintErr("❌ SceneManager.Instance accessed before it was initialized!");
-			return _instance;
-		}
-	}
+	public static SceneManager Instance => _instance ??= new SceneManager();
 
 	private Dictionary<string, string> biomeScenes = new Dictionary<string, string>
 	{
@@ -23,143 +15,147 @@ public partial class SceneManager : Node
 		{ "forest", "res://Scenes/Biomes/Forest.tscn" }
 	};
 
-	private string currentBiome = "wilderness"; // Default starting biome
-	private Node MapDisplay; // ✅ Declare MapDisplay as a class variable
-
-
-
+	private string currentBiome = "wilderness"; // Default biome
+	private Node MapDisplay; // ✅ Store reference to MapDisplay
 
 	public override void _Ready()
-{
-	if (_instance == null)
 	{
-		_instance = this;
-		GD.Print("✅ SceneManager Singleton Initialized.");
+		if (_instance == null)
+		{
+			_instance = this;
+			GD.Print("✅ SceneManager Initialized.");
+		}
+		else
+		{
+			GD.PrintErr("❌ Duplicate SceneManager detected!");
+			QueueFree();
+		}
 	}
-	else
+
+	// ✅ Enables SceneManager but prevents duplicate activation
+	public void EnableSceneManager()
 	{
-		GD.PrintErr("⚠️ Duplicate SceneManager detected! Removing...");
-		QueueFree();
+		if (isSceneManagerEnabled)
+		{
+			GD.Print("⚠️ SceneManager is already enabled. Skipping duplicate call.");
+			return;
+		}
+
+		isSceneManagerEnabled = true;
+		GD.Print("✅ SceneManager Activated!");
+
+		Node gameScene = GetTree().Root.GetNodeOrNull("GameScene");
+		if (gameScene == null)
+		{
+			GD.PrintErr("❌ ERROR: `GameScene` not found in root!");
+			return;
+		}
+
+		MapDisplay = GetTree().Root.GetNodeOrNull("UI/MapDisplay");
+		if (MapDisplay == null)
+		{
+			GD.PrintErr("❌ ERROR: `MapDisplay` not found!");
+			return;
+		}
+
+		GD.Print("🔍 SceneManager ready to handle zones.");
+	}
+
+
+
+	// ✅ Loads a new zone only if player crosses a zone boundary
+	public async void LoadCurrentZone()
+{
+	GD.Print("🌍 SceneManager: LoadCurrentZone() started.");
+
+	// ✅ Determine which zone the player is in (NOT just the tile)
+	Vector2I currentZone = World.GetZoneForTile(World.playerTile);
+
+	// 🛑 **Prevent Null Zone Access**
+	if (currentZone == null)
+	{
+		GD.PrintErr("❌ ERROR: Player is in an invalid zone! Cannot load.");
 		return;
 	}
 
-	// ✅ SceneManager is DISABLED until explicitly enabled
-	SetProcess(false);
-	GD.Print("⏳ SceneManager is DISABLED until manually activated.");
+	// ✅ Check if player is in the same zone before reloading
+	if (GameState.LastZone == currentZone)
+	{
+		GD.Print("🚀 Player is still in the same zone. No need to reload.");
+		return;
+	}
+
+	GD.Print($"🌍 SceneManager: Loading Zone {currentZone}");
+
+	// ✅ Declare `existingZone` once at the start
+	ZoneCreation existingZone = GameState.GetZone(currentZone);
+	string biomeType = (existingZone != null) ? existingZone.BiomeType : "wilderness";
+
+	if (string.IsNullOrEmpty(biomeType))
+{
+	GD.PrintErr($"❌ ERROR: Zone data missing for {currentZone}. Defaulting to wilderness.");
+	biomeType = "wilderness";
+}
+
+Node mapDisplay = GetTree().Root.GetNodeOrNull("UI/MapDisplay");
+if (mapDisplay == null)
+{
+	GD.PrintErr("❌ ERROR: MapDisplay not found!");
+	return;
+}
+
+	// ✅ Check if the zone already exists before creating a new one
+if (GameState.ZoneExists(currentZone))
+{
+	GD.Print($"✅ Loading previously generated zone for {currentZone}...");
+
+	if (existingZone == null || existingZone.IsQueuedForDeletion() || !IsInstanceValid(existingZone))
+	{
+		GD.PrintErr($"❌ ERROR: Zone {currentZone} is invalid. Recreating it...");
+		GameState.RemoveZone(currentZone);
+
+		existingZone = new ZoneCreation(); // ✅ Just assign, no redeclaration
+		GameState.SaveZone(currentZone, existingZone); // ✅ Pass the dictionary inside `ZoneCreation`
+	}
+
+	if (!mapDisplay.HasNode(existingZone.Name.ToString())) // ✅ Convert `StringName` to string
+	{
+		mapDisplay.AddChild(existingZone);
+	}
+}
+else
+{
+	GD.Print($"🌍 No ZoneCreation found for {currentZone}. Creating a new one...");
+	ZoneCreation newZone = new ZoneCreation();
+	mapDisplay.AddChild(newZone);
+	newZone.GenerateZoneForBiome(biomeType);
+	GameState.SaveZone(currentZone, newZone); // ✅ Correct dictionary type
+}
+
+// ✅ Update Last Zone
+GameState.LastZone = currentZone;
 }
 
 
-
-
-// ✅ This method will be called when we want to enable SceneManager
-public void EnableSceneManager()
-{
-	GD.Print("✅ SceneManager Activated!");
-
-	// ✅ Ensure World is Ready BEFORE calling this function
-	if (World.Instance == null || !World.Instance.IsReady)
+	// ✅ Handles player spawning in the correct zone
+	private void SpawnPlayer()
 	{
-		GD.PrintErr("❌ ERROR: World is not ready! SceneManager should not have been activated yet.");
-		return;
-	}
+		if (!GameState.PlayerExists())
+		{
+			GD.PrintErr("❌ Player data is missing!");
+			return;
+		}
 
-	GD.Print("✅ World is ready! Now loading the correct biome...");
-	LoadCurrentBiome();
-}
+		Node2D player = GameState.LoadPlayer();
+		if (!MapDisplay.HasNode("Player"))
+		{
+			MapDisplay.AddChild(player);
+			GD.Print("✅ Player added to MapDisplay!");
+		}
 
-
-
-
-
-public async void LoadCurrentBiome()
-{
-	GD.Print("🌍 SceneManager: LoadCurrentBiome() started.");
-
-	int attempts = 0;
-	while (!World.biomeMapReady && attempts < 200)
-	{
-		GD.Print($"⏳ Waiting for World to finish loading... ({attempts + 1}/200)");
-		await Task.Delay(500);
-		attempts++;
-	}
-
-	if (!World.biomeMapReady)
-	{
-		GD.PrintErr("❌ World failed to generate in time! Defaulting to Wilderness.");
-		GetTree().ChangeSceneToFile("res://Scenes/Biomes/Wilderness.tscn");
-		return;
-	}
-
-	string biomeType = World.GetBiomeAt(World.playerTile);
-	GD.Print($"🌍 SceneManager: Determined biome at player tile {World.playerTile}: {biomeType}");
-
-	if (biomeType == "Unknown" || !biomeScenes.ContainsKey(biomeType))
-	{
-		GD.PrintErr($"❌ Invalid biome detected: {biomeType}. Defaulting to Wilderness.");
-		biomeType = "wilderness"; // ✅ Force Wilderness as fallback
-	}
-
-	PackedScene biomeScene = (PackedScene)ResourceLoader.Load(biomeScenes[biomeType]);
-	if (biomeScene == null)
-	{
-		GD.PrintErr($"❌ Failed to load scene for biome: {biomeType}");
-		return;
-	}
-
-	Node MapDisplay = GetTree().Root.GetNodeOrNull("UI/MapDisplay");
-	if (MapDisplay == null)
-	{
-		GD.PrintErr("❌ MapDisplay not found! Cannot attach biome.");
-		return;
-	}
-
-	// ✅ Clear any existing biome first
-	foreach (Node child in MapDisplay.GetChildren())
-	{
-		MapDisplay.RemoveChild(child);
-		child.QueueFree();
-	}
-
-	// ✅ Add the new biome scene
-	Node biomeInstance = biomeScene.Instantiate();
-	MapDisplay.AddChild(biomeInstance);
-	GD.Print($"✅ Biome {biomeType} added to MapDisplay.");
-
-	// ZoneCreation Trigger
-	if (MapDisplay.HasNode("ZoneCreation") == false)
-{
-	ZoneCreation zone = new ZoneCreation();
-	MapDisplay.AddChild(zone);
-	GD.Print("🌍 ZoneCreation successfully added to the scene!");
-}
-
-
-	// ✅ Now, add the player after the map is set up
-	AddPlayerToMapDisplay(MapDisplay);
-}
-
-private void AddPlayerToMapDisplay(Node MapDisplay)
-{
-	PackedScene playerScene = (PackedScene)ResourceLoader.Load("res://Scenes/Sprites/PlayerSprites/character.tscn");
-	if (playerScene == null)
-	{
-		GD.PrintErr("❌ Failed to load Player.tscn");
-		return;
-	}
-
-	Node playerInstance = playerScene.Instantiate();
-	MapDisplay.AddChild(playerInstance);
-	GD.Print("✅ Player added to MapDisplay!");
-
-	// Ensure player starts at correct tile position
-	if (playerInstance is Node2D player2D)
-	{
+		// Ensure player is positioned correctly
 		Vector2 playerPosition = World.GetTilePosition(World.playerTile);
-		player2D.Position = playerPosition;
+		player.Position = playerPosition;
 		GD.Print($"🚀 Player positioned at {playerPosition}");
 	}
-}
-
-
-
 }

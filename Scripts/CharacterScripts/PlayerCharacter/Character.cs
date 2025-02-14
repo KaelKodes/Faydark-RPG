@@ -28,4 +28,17 @@ public partial class Character : CharacterBody2D
 	{
 		GD.Print("✅ Character stats loaded!");
 	}
+	public void LoadData(CharacterData data)
+{
+	if (data == null)
+	{
+		GD.PrintErr("❌ No character data to load!");
+		return;
+	}
+
+	this.Name = data.CharacterName;
+	this.Position = new Vector2(data.Position.X, data.Position.Y);
+	GD.Print($"✅ Character {this.Name} loaded at {this.Position}");
+}
+
 }
